@@ -13,10 +13,6 @@ public class ActAlterarCifFobCabecalho implements AcaoRotinaJava {
 
 		Registro[] linhas = ctx.getLinhas();
 
-//		BigDecimal codNat = null;
-
-//		String temp = (String) ctx.getParam("CIF_FOB");
-
 		String cif_fob = (String) ctx.getParam("CIF_FOB");
 
 		for (Registro linha : linhas)
