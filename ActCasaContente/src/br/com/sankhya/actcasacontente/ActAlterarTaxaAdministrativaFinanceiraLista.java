@@ -3,9 +3,9 @@ package br.com.sankhya.actcasacontente;
 import br.com.sankhya.extensions.actionbutton.AcaoRotinaJava;
 import br.com.sankhya.extensions.actionbutton.ContextoAcao;
 import br.com.sankhya.extensions.actionbutton.Registro;
-import java.math.BigDecimal;
+//import java.math.BigDecimal;
 
-public class ActAlterarNaturezaFinanceiraLista implements AcaoRotinaJava {
+public class ActAlterarTaxaAdministrativaFinanceiraLista implements AcaoRotinaJava {
 
 	@Override
 	public void doAction(ContextoAcao ctx) throws Exception {
@@ -13,19 +13,15 @@ public class ActAlterarNaturezaFinanceiraLista implements AcaoRotinaJava {
 
 		Registro[] linhas = ctx.getLinhas();
 
-		BigDecimal codNat = null;
-
-		String temp = (String) ctx.getParam("CODNAT");
-
-		codNat = new BigDecimal(temp);
-
+		Double cartaoDesc = (Double) ctx.getParam("CARTAODESC");
+		
 		for (Registro linha : linhas)
 		{
-			linha.setCampo("CODNAT", codNat);
+			linha.setCampo("CARTAODESC", cartaoDesc);
 			linha.save();
 		}
 
-		ctx.setMensagemRetorno("Natureza alterada com sucesso!");
+		ctx.setMensagemRetorno("Taxa Administradora alterada com sucesso!");
 
 	}
 
