@@ -5,7 +5,7 @@ import br.com.sankhya.extensions.actionbutton.ContextoAcao;
 import br.com.sankhya.extensions.actionbutton.Registro;
 //import java.math.BigDecimal;
 
-public class ActAlterarCifFobCabecalho implements AcaoRotinaJava {
+public class ActAlterarTipoFrete implements AcaoRotinaJava {
 
 	@Override
 	public void doAction(ContextoAcao ctx) throws Exception {
@@ -13,15 +13,15 @@ public class ActAlterarCifFobCabecalho implements AcaoRotinaJava {
 
 		Registro[] linhas = ctx.getLinhas();
 
-		String cif_fob = (String) ctx.getParam("CIF_FOB");
+		String tipFrete = (String) ctx.getParam("TIPFRETE");
 
 		for (Registro linha : linhas)
 		{
-			linha.setCampo("CIF_FOB", cif_fob);
+			linha.setCampo("TIPFRETE", tipFrete);
 			linha.save();
 		}
 
-		ctx.setMensagemRetorno("CIF/FOB alterado com sucesso!");
+		ctx.setMensagemRetorno("Tipo de Frete alterado com sucesso!");
 
 	}
 

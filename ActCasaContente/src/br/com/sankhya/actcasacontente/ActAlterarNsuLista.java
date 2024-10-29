@@ -11,33 +11,58 @@ public class ActAlterarNsuLista implements AcaoRotinaJava {
 
 	@Override
 	public void doAction(ContextoAcao ctx) throws Exception {
-		// TODO Auto-generated method stub
+	    Registro[] linhas = ctx.getLinhas();
+	    
+	    String paramNsu = getStringParam(ctx, "NSU");
+	    String paramAutorizacao = getStringParam(ctx, "AUTH");
+	    BigDecimal paramNumnota = getBigDecimalParam(ctx, "NUMNOTA");
 
-		Registro[] linhas = ctx.getLinhas();
+	    if (linhas == null || linhas.length == 0) {
+	        ctx.mostraErro("Nenhuma linha encontrada.");
+	        return;
+	    }
 
-		String paramNsu = (String) ctx.getParam("NSU");
-		String paramAutorizacao = (String) ctx.getParam("AUTH");
+	    QueryExecutor query = ctx.getQuery();
 
-		Integer paramNumnota = (Integer) ctx.getParam("NUMNOTA");
-		BigDecimal paramNumnotaBigDecimal = new BigDecimal(paramNumnota);
+	    for (Registro linha : linhas) {
+	        BigDecimal numnota = (BigDecimal) linha.getCampo("NUMNOTA");
 
-		QueryExecutor query = ctx.getQuery();
+	        if (paramNumnota.compareTo(numnota) == 0) {
+	            deleteExistingRecords(query, linha);
+	            insertNewRecord(query, linha, paramNsu, paramAutorizacao);
+	        } else {
+	            ctx.mostraErro("Mais de uma nota selecionada ou Número da Nota informado não encontrado.");
+	            return;
+	        }
+	    }
+	    ctx.setMensagemRetorno("Nsu/Autorização alterado com sucesso!");
+	}
 
-		for (Registro linha : linhas) {
-			BigDecimal numnota = (BigDecimal) linha.getCampo("NUMNOTA");
+	private String getStringParam(ContextoAcao ctx, String paramName) {
+	    return (String) ctx.getParam(paramName);
+	}
 
-			if (paramNumnotaBigDecimal.compareTo(numnota) == 0) {
-				query.setParam("NUFIN", linha.getCampo("NUFIN"));
-				query.setParam("NSU", paramNsu);
-				query.setParam("AUTH", paramAutorizacao);
-				query.update("UPDATE TGFTEF SET AUTORIZACAO = {AUTH}, NUMNSU = {NSU} WHERE NUFIN = {NUFIN}");
+	private BigDecimal getBigDecimalParam(ContextoAcao ctx, String paramName) {
+	    Integer paramValue = (Integer) ctx.getParam(paramName);
+	    return new BigDecimal(paramValue);
+	}
 
-			} else {
-				ctx.mostraErro("Mais de uma nota selecionada ou Numero da Nota informado não encontrado.");
-			}
-		}
-		ctx.setMensagemRetorno("Nsu/Autorização alterado com sucesso!");
+	private void deleteExistingRecords(QueryExecutor query, Registro linha) throws Exception {
+	    query.setParam("NUFIN", linha.getCampo("NUFIN"));
+	    query.update("DELETE FROM TGFTEF WHERE NUFIN = {NUFIN}");
+	}
 
+	private void insertNewRecord(QueryExecutor query, Registro linha, String paramNsu, String paramAutorizacao) throws Exception {
+	    query.setParam("NUFIN", linha.getCampo("NUFIN"));
+	    query.setParam("NSU", paramNsu);
+	    query.setParam("AUTH", paramAutorizacao);
+
+	    query.update(
+	        "INSERT TGFTEF (TIPODOC, NUMCV, NUMDOC, NUMNSU, NUMPV, AUTORIZACAO, DESDOBRAMENTO, DTTRANSACAO, VLRTRANSACAO, VLRTAXA, NUFIN) " +
+	        "VALUES (158, 000000000000000, 000000000000000, FORMAT(CAST({NSU} AS INT), '000000000000000'), 000000000000000, " +
+	        "FORMAT(CAST({AUTH} AS INT), '000000000000000'), (SELECT DESDOBRAMENTO FROM TGFFIN WHERE NUFIN = {NUFIN}), " +
+	        "(SELECT DTNEG FROM TGFFIN WHERE NUFIN = {NUFIN}), (SELECT VLRDESDOB FROM TGFFIN WHERE NUFIN = {NUFIN}), 7.12, {NUFIN})"
+	    );
 	}
 
 }
